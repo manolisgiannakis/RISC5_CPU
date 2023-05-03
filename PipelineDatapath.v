@@ -30,6 +30,8 @@ module PipelineDatapath (clk, reset);
     wire [31:0] if_id_pc_o, if_id_inst_o, rd1_id_ex, rd2_id_ex, Immed;
     wire [1:0] ImmGenCtrl, ALUop, ALUsrc;
     wire Branch, MemRead, MemWrite, RegWrite, MemToReg;
+    wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
+    wire regWrite_to_ID_EX, memWrite_to_ID_EX;
     //wire [9:0] ALUctrl_id_ex;
 
 
@@ -81,7 +83,7 @@ module PipelineDatapath (clk, reset);
     end
 
     Adder32 PCadd4 (
-        .data1   (pc_out), 
+        .data1   (pc_out),
         .data2   (32'd4),
         .data_o  (add4)
     );
@@ -89,8 +91,8 @@ module PipelineDatapath (clk, reset);
     MUX32_2to1 pc_input_select (
         .select_i (1'b0), //sel 
         .data0_i  (add4),
-        .data1_i  (branchAddr),
-        .data_o   (mux_to_pc) //mux_to_pc
+        .data1_i  (adder_res),
+        .data_o   (mux_to_pc)
     );
 
     InstructionMem instMem (
@@ -121,6 +123,17 @@ module PipelineDatapath (clk, reset);
         .rd2        (rd2_id_ex)
     );
 
+    HazDetectUnit hazDetection (
+        .ID_EXmemRead   (MemRead_to_ex_mem), 
+        .ID_EXrd        (wr_to_EX_MEM), 
+        .IF_IDrs1       (if_id_inst_o[19:15]), 
+        .IF_IDrs2       (if_id_inst_o[24:20]), 
+        .PCwrite        (hazDetect_PC), //wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
+        .IF_IDwrite     (hazDetect_IF_ID), 
+        .regWrite       (reg_write), 
+        .memWrite       (mem_write)
+    );
+
     ControlUnit control (
         .opcode      (if_id_inst_o[6:0]), 
         .ImmGenCtrl  (ImmGenCtrl), 
@@ -133,21 +146,41 @@ module PipelineDatapath (clk, reset);
         .MemToReg    (MemToReg)
     );
 
+    MUX_2to1 regWrite (
+        .select_i  (reg_write), 
+        .data0_i   (1'b0), 
+        .data1_i   (RegWrite), 
+        .data_o    (regWrite_to_ID_EX) //wire regWrite_to_ID_EX, memWrite_to_ID_EX;
+    );
+
+    MUX_2to1 memWrite (
+        .select_i  (mem_write), 
+        .data0_i   (1'b0), 
+        .data1_i   (MemWrite), 
+        .data_o    (memWrite_to_ID_EX)
+    );
+
     ImmGen immediates (
         .inst    (if_id_inst_o),
         .ctrl    (ImmGenCtrl),
         .imm     (Immed)
     );
 
+    Adder32 branchAddress (
+        .data1   (Immed),
+        .data2   (if_id_pc_o),
+        .data_o  (adder_res)
+    );
+
 
     //-----------------------------------------------------------EX---------------------------------------------------------------
     ID_EX id_ex (
         .clk        (clk), //.WB_i       ({RegWrite, MemToReg}), //.MEM_i      ({Branch, MemRead, MemWrite}), //.EX_i       ({ALUop, ALUsrc}),
-        .id_ex_RegWrite_i (RegWrite),
+        .id_ex_RegWrite_i (regWrite_to_ID_EX),
         .id_ex_MemToReg_i (MemToReg),
         .id_ex_Branch_i   (Branch),
         .id_ex_MemRead_i  (MemRead),
-        .id_ex_MemWrite_i (MemWrite),
+        .id_ex_MemWrite_i (memWrite_to_ID_EX),
         .id_ex_ALUop_i    (ALUop),
         .id_ex_ALUsrc_i   (ALUsrc), 
         .pc_i       (if_id_pc_o), 
@@ -214,6 +247,8 @@ module PipelineDatapath (clk, reset);
         .ALUctrl_lines  (ALUctrl_lines)
     );
 
+    //muxes
+
     ALU alu (
         //.clk        (clk),
         .data0      (ALU_0),
@@ -223,11 +258,7 @@ module PipelineDatapath (clk, reset);
         .zeroFlag   (zeroFlag) //check ALU for the signal logic(if exists)
     );
 
-    Adder32 branchAddress (
-        .data1   (pc_to_Adder),
-        .data2   (imm_MUX),
-        .data_o  (adder_res)
-    );
+    
     
     
     //-----------------------------------------------------MEM-------------------------------------------
@@ -238,7 +269,7 @@ module PipelineDatapath (clk, reset);
         .ex_mem_Branch_i   (Branch_to_ex_mem),    
         .ex_mem_MemRead_i  (MemRead_to_ex_mem),
         .ex_mem_MemWrite_i (MemWrite_to_ex_mem),
-        .BA_i       (adder_res),
+        //.BA_i       (adder_res), //delete
         .FlagZero_i (zeroFlag),
         .ALUresult_i(result),
         .rd2_i      (rd2_MUX),
@@ -249,7 +280,7 @@ module PipelineDatapath (clk, reset);
         .ex_mem_Branch_o   (Branch_out),    
         .ex_mem_MemRead_o  (MemRead_out),
         .ex_mem_MemWrite_o (MemWrite_out),
-        .BA_o       (branchAddr),
+        //.BA_o       (branchAddr), //delete
         .FlagZero_o (zero_AND),
         .ALUresult_o(res_to_DataMem_Addr),
         .rd2_o      (rd2_to_DataMem_wd),

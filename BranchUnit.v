@@ -11,7 +11,7 @@ initial
     br = 0;
 
 always @(posedge clk) begin
-    casex ({instr[14:12], instr[6:0]})
+    case ({instr[14:12], instr[6:0]})
         10'b0001100011 : begin // BEQ
             br <= (a == b) ? 1 : 0; 
         end  

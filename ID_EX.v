@@ -63,8 +63,8 @@ module ID_EX (
         ALUctrl_funct7_o <= ALUctrl_funct7_i;
         ALUctrl_funct3_o <= ALUctrl_funct3_i;
         wr_o <= wr_i;
-        rs1_i <= rs1_o;
-        rs2_i <= rs2_o;
+        rs1_o <= rs1_i;
+        rs2_o <= rs2_i;
     end
 
 endmodule

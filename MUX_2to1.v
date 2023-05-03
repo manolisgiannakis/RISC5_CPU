@@ -1,8 +1,8 @@
-module MUX32_2to1 (select_i, data0_i, data1_i, data_o);
+module MUX_2to1 (select_i, data0_i, data1_i, data_o);
 
-    input [31:0] data0_i, data1_i;
+    input data0_i, data1_i;
     input select_i;
-    output reg [31:0] data_o;
+    output reg data_o;
 
     always@(*) begin
         case(select_i)
@@ -12,7 +12,7 @@ module MUX32_2to1 (select_i, data0_i, data1_i, data_o);
             2'b1 : begin
                 data_o <= data1_i;
             end
-    endcase
+        endcase
     end
 
 endmodule
