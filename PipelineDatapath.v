@@ -75,6 +75,7 @@ module PipelineDatapath (clk, reset);
         .clk        (clk),
         .reset      (reset),
         .pc_input   (add4), //mux_to_pc
+        .hazDetect_PC (),
         .pc_output  (pc_out)
     );
 
@@ -104,7 +105,8 @@ module PipelineDatapath (clk, reset);
 
     //--------------------------------ID----------------------------
     IF_ID if_id (
-        .clk    (clk), 
+        .clk    (clk),
+        .hazDetect_IF_ID (),
         .pc_i   (pc_out), 
         .inst_i (instMemOut), 
         .pc_o   (if_id_pc_o), 

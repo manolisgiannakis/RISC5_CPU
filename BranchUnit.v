@@ -1,43 +1,37 @@
-module BranchUnit (clk, instr, a, b, br);
+module BranchUnit (instr, rs1, rs2, mux_to_pc);
 
-input clk;
-input [31:0] a;
-input [31:0] b;
-input [31:0] instr;
-output reg br;
+input [31:0] rs1, rs2, instr;
+output reg mux_to_pc;
 
 
 initial 
-    br = 0;
+    mux_to_pc = 0;
 
 always @(posedge clk) begin
     case ({instr[14:12], instr[6:0]})
         10'b0001100011 : begin // BEQ
-            br <= (a == b) ? 1 : 0; 
+            mux_to_pc <= (rs1 == rs2) ? 1 : 0; 
         end  
         10'b0011100011 : begin // BNE
-            br <= (a != b) ? 1 : 0; 
+            mux_to_pc <= (rs1 != rs2) ? 1 : 0; 
         end   
         10'b1001100011 : begin // BLT
-            br <= ($signed(a) <  $signed(b)) ? 1 : 0; 
+            mux_to_pc <= ($signed(rs1) <  $signed(rs2)) ? 1 : 0; 
         end  
         10'b1011100011 : begin // BGE
-            br <= ($signed(a) >= $signed(b)) ? 1 : 0; 
+            mux_to_pc <= ($signed(rs1) >= $signed(rs2)) ? 1 : 0; 
         end   
         10'b1101100011 : begin // BLTU
-            br <= (a <  b) ? 1 : 0; 
+            mux_to_pc <= (rs1 <  rs2) ? 1 : 0; 
         end  
         10'b1111100011 : begin // BGEU
-            br <= (a >= b) ? 1 : 0;
+            mux_to_pc <= (rs1 >= rs2) ? 1 : 0;
         end   
         10'bxxx1101111 : begin // JAL
-            br <= 1;
+            mux_to_pc <= 1;
         end
         10'b0001100111 : begin // JALR
-            br <= 1;
-        end   
-        default        : begin 
-            br <= 0;
+            mux_to_pc <= 1;
         end
     endcase
 end
