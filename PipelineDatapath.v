@@ -75,12 +75,12 @@ module PipelineDatapath (clk, reset);
         .clk        (clk),
         .reset      (reset),
         .pc_input   (add4), //mux_to_pc
-        .hazDetect_PC (),
+        .hazDetect_PC (hazDetect_PC),
         .pc_output  (pc_out)
     );
 
     initial begin
-        $monitor ("[$monitor] time = %t, inst = %h, ALU_out = %h, mem_write = %b, dataMemOut = %h", $time, instMemOut, result, MemWrite_out, DataMem_out);
+        $monitor ("[$monitor] time = %t, pc_write = %h, inst = %h, memRead_haz = %h, ALU_out = %h, fw0 = %h, fw1 = %h, mem_write = %b, dataMemOut = %h", $time, hazDetect_PC, instMemOut, MemRead_to_ex_mem, result, fw0, fw1, MemWrite_out, DataMem_out);
     end
 
     Adder32 PCadd4 (
@@ -106,7 +106,7 @@ module PipelineDatapath (clk, reset);
     //--------------------------------ID----------------------------
     IF_ID if_id (
         .clk    (clk),
-        .hazDetect_IF_ID (),
+        .hazDetect_IF_ID (hazDetect_IF_ID),
         .pc_i   (pc_out), 
         .inst_i (instMemOut), 
         .pc_o   (if_id_pc_o), 
@@ -125,11 +125,18 @@ module PipelineDatapath (clk, reset);
         .rd2        (rd2_id_ex)
     );
 
+
     HazDetectUnit hazDetection (
-        .ID_EXmemRead   (MemRead_to_ex_mem), 
-        .ID_EXrd        (wr_to_EX_MEM), 
-        .IF_IDrs1       (if_id_inst_o[19:15]), 
-        .IF_IDrs2       (if_id_inst_o[24:20]), 
+        .ID_EXrd        (wr_to_EX_MEM),
+        .IF_IDrs1       (if_id_inst_o[19:15]),
+        .IF_IDrs2       (if_id_inst_o[24:20]),
+        .branch         (),
+        .ID_EXmemRead   (MemRead_to_ex_mem),
+        .ID_EXregWrite  (), 
+        .ID_EXmemToReg  (),
+        .ID_EXmemWrite  (),
+        .rs1_MUX        (),
+        .rs2_MUX        (),
         .PCwrite        (hazDetect_PC), //wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
         .IF_IDwrite     (hazDetect_IF_ID), 
         .regWrite       (reg_write), 
@@ -201,7 +208,7 @@ module PipelineDatapath (clk, reset);
         .id_ex_MemWrite_o (MemWrite_to_ex_mem),
         .id_ex_ALUop_o    (ALUop_out), //wire [1:0] ALUop_out, ALUsrc_out;
         .id_ex_ALUsrc_o   (ALUsrc_out),
-        .pc_o       (pc_to_Adder),
+        .pc_o       (pc_to_Adder), //useless cause the branch adress is computed in ID phase
         .rd1_o      (rd1_MUX),
         .rd2_o      (rd2_MUX),
         .imm_o      (imm_MUX),//.ALUctrl_o  (ALU_ctrl),
@@ -249,10 +256,7 @@ module PipelineDatapath (clk, reset);
         .ALUctrl_lines  (ALUctrl_lines)
     );
 
-    //muxes
-
     ALU alu (
-        //.clk        (clk),
         .data0      (ALU_0),
         .data1      (ALU_1),
         .ctrl       (ALUctrl_lines),

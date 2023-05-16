@@ -7,7 +7,7 @@ output reg mux_to_pc;
 initial 
     mux_to_pc = 0;
 
-always @(posedge clk) begin
+always @(rs1, rs2, instr) begin
     case ({instr[14:12], instr[6:0]})
         10'b0001100011 : begin // BEQ
             mux_to_pc <= (rs1 == rs2) ? 1 : 0; 
