@@ -31,7 +31,7 @@ module DataMem (clk, addr, MemWrite, MemRead, WriteData, funct3, ReadData);
                 end
             endcase
         end
-        else begin
+        else if (MemRead) begin
             case(funct3)
                 3'b000 : begin //load byte
                     ReadData <= $signed(data_memory[addr[11:0]]);

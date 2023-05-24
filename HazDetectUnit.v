@@ -1,10 +1,9 @@
-module HazDetectUnit (ID_EXrd, IF_IDrs1, IF_IDrs2, branch, ID_EXmemRead, ID_EXregWrite, ID_EXmemToReg ,ID_EXmemWrite, rs1_MUX, rs2_MUX,
-PCwrite, IF_IDwrite, regWrite, memWrite);
+module HazDetectUnit (ID_EXrd, IF_IDrs1, IF_IDrs2, ID_EXmemRead, PCwrite, IF_IDwrite, regWrite, memWrite);
     
-    input ID_EXmemRead, branch, ID_EXregWrite, ID_EXmemToReg, ID_EXmemWrite;
+    input ID_EXmemRead;
     input [4:0] ID_EXrd, IF_IDrs1, IF_IDrs2;
     output reg PCwrite, IF_IDwrite, regWrite, memWrite;
-    output reg [1:0] rs1_MUX, rs2_MUX;
+    //output reg [1:0] rs1_MUX, rs2_MUX;
 
     initial begin
         PCwrite = 1;
@@ -29,11 +28,6 @@ PCwrite, IF_IDwrite, regWrite, memWrite);
             memWrite = 1;
         end
 	end
-
-    initial begin
-        rs1_MUX = 2'b00;
-        rs2_MUX = 2'b00;
-    end
 
     //for conditional branches, //control lines from id_ex because i want to know the previous instruction //this always block is for
     // ALU instruction before the Branch instruction and branch uses the register that the ALU inst is writing.// it needs 1 stall cycle

@@ -11,7 +11,7 @@ module InstructionMem (addr, reset, inst);
         $readmemh("inst_memory.mem", inst_memory, 0, 4095);
     end
 
-    assign inst = {inst_memory[addr[11:0] + 3], inst_memory[addr[11:0] + 2], inst_memory[addr[11:0] + 1], inst_memory[addr[11:0]]}; //little endian
+    assign inst = {inst_memory[addr[11:0]], inst_memory[addr[11:0] + 1], inst_memory[addr[11:0] + 2], inst_memory[addr[11:0] + 3]}; //big endian
 
 
 endmodule
