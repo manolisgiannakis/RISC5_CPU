@@ -1,39 +1,26 @@
-module BranchUnit (instr, rs1, rs2, mux_to_pc);
+module BranchUnit (branch, mux_to_pc, IF_Flush, ID_Flush);
 
-input [31:0] rs1, rs2, instr;
-output reg mux_to_pc;
+input branch;
+output reg mux_to_pc, IF_Flush, ID_Flush;
 
+initial begin
+    mux_to_pc <= 0;
+    IF-Flush <= 0;
+    ID-Flush <= 0;
+end
 
-initial 
-    mux_to_pc = 0;
+always @(branch) begin
+    if(branch) begin
+        mux_to_pc <= 1;
+        IF-Flush <= 1;
+        ID-Flush <= 1;
+    end
+    else begin
+        mux_to_pc <= 0;
+        IF-Flush <= 0;
+        ID-Flush <= 0;
+    end
 
-always @(rs1, rs2, instr) begin
-    case ({instr[14:12], instr[6:0]})
-        10'b0001100011 : begin // BEQ
-            mux_to_pc <= (rs1 == rs2) ? 1 : 0; 
-        end  
-        10'b0011100011 : begin // BNE
-            mux_to_pc <= (rs1 != rs2) ? 1 : 0; 
-        end   
-        10'b1001100011 : begin // BLT
-            mux_to_pc <= ($signed(rs1) <  $signed(rs2)) ? 1 : 0; 
-        end  
-        10'b1011100011 : begin // BGE
-            mux_to_pc <= ($signed(rs1) >= $signed(rs2)) ? 1 : 0; 
-        end   
-        10'b1101100011 : begin // BLTU
-            mux_to_pc <= (rs1 <  rs2) ? 1 : 0; 
-        end  
-        10'b1111100011 : begin // BGEU
-            mux_to_pc <= (rs1 >= rs2) ? 1 : 0;
-        end   
-        10'bxxx1101111 : begin // JAL
-            mux_to_pc <= 1;
-        end
-        10'b0001100111 : begin // JALR
-            mux_to_pc <= 1;
-        end
-    endcase
 end
 
 endmodule

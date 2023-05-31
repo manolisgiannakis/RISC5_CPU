@@ -1,11 +1,15 @@
 /* */
 
-module ALU (data0, data1, ctrl, result, zeroFlag, mux_to_pc);
+module ALU (data0, data1, ctrl, result, zeroFlag, branch);
   input [31:0] data0, data1;
   input [3:0] ctrl;
   output reg [31:0] result;
   output reg zeroFlag;
-  output reg mux_to_pc;
+  output reg branch;
+
+  initial begin
+    branch = 0;
+  end
 
 
   always@(*)
@@ -40,23 +44,23 @@ module ALU (data0, data1, ctrl, result, zeroFlag, mux_to_pc);
       4'b0111 : begin //AND
         result = data0 & data1;
       end
-      4'b1100 : begin //BEQ // for mux_to_pc-> 1: branch adress, 0: addr + 4.
-        mux_to_pc = (zeroFlag) ? 1 : 0;
+      4'b1100 : begin //BEQ // for branch-> 1: branch adress, 0: addr + 4.
+        branch = (zeroFlag) ? 1 : 0;
       end
       4'b1101 : begin //BNE
-        mux_to_pc = (zeroFlag) ? 0 : 1;
+        branch = (zeroFlag) ? 0 : 1;
       end
       4'b1000 : begin //BLT
-        mux_to_pc = ($signed(data0) <  $signed(data1)) ? 1 : 0;
+        branch = ($signed(data0) <  $signed(data1)) ? 1 : 0;
       end
       4'b1001 : begin //BGE
-        mux_to_pc = ($signed(data0) >= $signed(data1)) ? 1 : 0;
+        branch = ($signed(data0) >= $signed(data1)) ? 1 : 0;
       end
       4'b1010 : begin //BLTU
-        mux_to_pc = (data0 <  data1) ? 1 : 0;
+        branch = (data0 <  data1) ? 1 : 0;
       end
       4'b1011 : begin //BGEU
-        mux_to_pc = (data0 >= data1) ? 1 : 0;
+        branch = (data0 >= data1) ? 1 : 0;
       end             
 
   endcase

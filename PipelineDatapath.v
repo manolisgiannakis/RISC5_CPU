@@ -35,7 +35,7 @@ module PipelineDatapath (clk, reset);
 
 
     //---------EX
-    wire zeroFlag, ALUsrc_out;
+    wire zeroFlag, ALUsrc_out, to_branchUnit;
     wire [31:0] rd1_MUX, rd2_MUX, imm_MUX, branch_address, ALU_0, ALU_1, result, adder_res, ALU_2nd_in;
     wire [2:0] funct3_to_out;
     wire [6:0] funct7_to_out;
@@ -59,7 +59,7 @@ module PipelineDatapath (clk, reset);
     wire RegWrite_out, MemToReg_out;
 
 
-    //--------------------------------------------------------------MODULES--------------------------------------------------------    
+    //----------------------------------------------MODULES---------------------------------------------------    
     
     
     //IF
@@ -67,7 +67,7 @@ module PipelineDatapath (clk, reset);
         .clk        (clk),
         .reset      (reset),
         .pc_input   (add4), //mux_to_pc
-        //.hazDetect_PC (hazDetect_PC),
+        .hazDetect_PC (hazDetect_PC),
         .pc_output  (pc_out)
     );
 
@@ -94,7 +94,7 @@ module PipelineDatapath (clk, reset);
     //--------------------------------ID----------------------------
     IF_ID if_id (
         .clk    (clk),
-        //.hazDetect_IF_ID (hazDetect_IF_ID),
+        .hazDetect_IF_ID (hazDetect_IF_ID),
         .pc_i   (pc_out), 
         .inst_i (instMemOut), 
         .pc_o   (if_id_pc_o), 
@@ -114,27 +114,20 @@ module PipelineDatapath (clk, reset);
     );
 
 
-    // HazDetectUnit hazDetection (
-    //     .ID_EXrd        (wr_to_EX_MEM),
-    //     .IF_IDrs1       (if_id_inst_o[19:15]),
-    //     .IF_IDrs2       (if_id_inst_o[24:20]),
-    //     .branch         (),
-    //     .ID_EXmemRead   (MemRead_to_ex_mem),
-    //     .ID_EXregWrite  (), 
-    //     .ID_EXmemToReg  (),
-    //     .ID_EXmemWrite  (),
-    //     .rs1_MUX        (),
-    //     .rs2_MUX        (),
-    //     .PCwrite        (hazDetect_PC), //wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
-    //     .IF_IDwrite     (hazDetect_IF_ID), 
-    //     .regWrite       (reg_write), 
-    //     .memWrite       (mem_write)
-    // );
+    HazDetectUnit hazDetection (
+        .ID_EXrd        (wr_to_EX_MEM),
+        .IF_IDrs1       (if_id_inst_o[19:15]),
+        .IF_IDrs2       (if_id_inst_o[24:20]),
+        .ID_EXmemRead   (MemRead_to_ex_mem),
+        .PCwrite        (hazDetect_PC), //wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
+        .IF_IDwrite     (hazDetect_IF_ID), 
+        .regWrite       (reg_write), 
+        .memWrite       (mem_write)
+    );
 
     ControlUnit control (
         .opcode      (if_id_inst_o[6:0]),
         .ALUop       (ALUop),
-        //.ImmGenCtrl  (ImmGenCtrl),
         .Branch      (Branch), 
         .MemRead     (MemRead),
         .MemWrite    (MemWrite), 
@@ -159,7 +152,6 @@ module PipelineDatapath (clk, reset);
 
     ImmGen immediates (
         .inst    (if_id_inst_o),
-        //.ctrl    (ImmGenCtrl),
         .imm     (Immed)
     );
 
@@ -173,11 +165,11 @@ module PipelineDatapath (clk, reset);
     //-----------------------------------------------------------EX---------------------------------------------------------------
     ID_EX id_ex (
         .clk        (clk),
-        .id_ex_RegWrite_i (regWrite_to_ID_EX), //WB
+        .id_ex_RegWrite_i (RegWrite), //WB
         .id_ex_MemToReg_i (MemToReg),          //WB
         .id_ex_Branch_i   (Branch),
         .id_ex_MemRead_i  (MemRead),
-        .id_ex_MemWrite_i (memWrite_to_ID_EX),
+        .id_ex_MemWrite_i (MemWrite),
         .id_ex_ALUop_i    (ALUop),
         .id_ex_ALUsrc_i   (ALUsrc), 
         .branchAddr_i     (adder_res),
@@ -256,8 +248,10 @@ module PipelineDatapath (clk, reset);
         .ctrl       (ALUctrl_lines),
         .result     (result),
         .zeroFlag   (zeroFlag),
-        .mux_to_pc  () //wire sel_mux_to_pc;
+        .branch  (to_branchUnit) //wire to_branchUnit;
     );
+
+    
 
     
     
@@ -326,7 +320,8 @@ module PipelineDatapath (clk, reset);
 
 
     initial begin
-        $monitor ("[$monitor_IF] time = %t, inst = %h, rs1_FW_in = %b, rs2_FW_in = %b, wr_to_MEM_WB = %b, wr_to_regFile = %b, fw0 = %b, fw1 = %b", $time, instMemOut, rs1_FW_in, rs2_FW_in, wr_to_MEM_WB, wr_to_regFile, fw0, fw1);
+        $monitor ("[$monitor_IF] time = %t, inst = %h, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, wr_to_MEM_WB = %b, fw0 = %b, fw1 = %b", $time, instMemOut, rs1_FW_in, rs2_FW_in, result, wr_to_MEM_WB, fw0, fw1);
+        //$monitor ("[$monitor] time = %t, RegWrite = %b, rs1_FW_in = %b, rs2_FW_in = %b, id_ex_RegWrite_o = %b, EX_MEMrd = %b, EX_MEMregWrite = %b, MEM_WBrd = %b, MEM_WBregWrite = %b, fw0 = %b, fw1 = %b", $time, RegWrite, rs1_FW_in, rs2_FW_in, RegWrite_to_ex_mem, wr_to_MEM_WB, RegWrite_to_mem_wb, wr_to_regFile, RegWrite_out, fw0, fw1);
     end
 
 endmodule

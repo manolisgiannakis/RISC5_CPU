@@ -1,5 +1,6 @@
 module ID_EX (
     clk,
+    ID_Flush,
     id_ex_RegWrite_i ,
     id_ex_MemToReg_i ,
     id_ex_Branch_i   , //might be useless
@@ -34,7 +35,7 @@ module ID_EX (
     rs2_o      
 );
 
-    input clk, id_ex_RegWrite_i, id_ex_MemToReg_i, id_ex_Branch_i, id_ex_MemRead_i, id_ex_MemWrite_i, id_ex_ALUsrc_i;
+    input clk, ID_Flush, id_ex_RegWrite_i, id_ex_MemToReg_i, id_ex_Branch_i, id_ex_MemRead_i, id_ex_MemWrite_i, id_ex_ALUsrc_i;
     input [1:0] id_ex_ALUop_i;
     input [31:0] branchAddr_i, rd1_i, rd2_i, imm_i; 
     input [6:0] ALUctrl_funct7_i;

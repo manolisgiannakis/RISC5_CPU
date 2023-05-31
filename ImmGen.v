@@ -11,7 +11,7 @@ module ImmGen (inst, imm);
             7'b0010011 : begin //IMMEDIATES
                 imm = (inst[31]) ? ({20'b11111111111111111111, inst[31:20]}) : ({20'b00000000000000000000, inst[31:20]}); // I-type
             end
-            7'b0010011 : begin //LOAD
+            7'b0000011 : begin //LOAD
                 imm = (inst[31]) ? ({20'b11111111111111111111, inst[31:20]}) : ({20'b00000000000000000000, inst[31:20]}); // I-type
             end
             7'b0100011 : begin

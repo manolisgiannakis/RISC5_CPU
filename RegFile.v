@@ -18,6 +18,7 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
         for (i = 0; i < 32; i = i + 1) begin
             register[i] <= 'b0;
         end
+        register[5] <= 32'd4;
     end
 
     //
