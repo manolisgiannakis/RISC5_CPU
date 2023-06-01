@@ -50,22 +50,42 @@ module ID_EX (
     output reg [4:0] wr_o, rs1_o, rs2_o;
 
     always @(posedge clk) begin
-        id_ex_RegWrite_o <= id_ex_RegWrite_i;
-        id_ex_MemToReg_o <= id_ex_MemToReg_i;
-        id_ex_Branch_o <= id_ex_Branch_i;
-        id_ex_MemRead_o <= id_ex_MemRead_i;
-        id_ex_MemWrite_o <= id_ex_MemWrite_i;
-        id_ex_ALUop_o <= id_ex_ALUop_i;
-        id_ex_ALUsrc_o <= id_ex_ALUsrc_i;
-        branchAddr_o <= branchAddr_i;
-        rd1_o <= rd1_i;
-        rd2_o <= rd2_i;
-        imm_o <= imm_i;
-        ALUctrl_funct7_o <= ALUctrl_funct7_i;
-        ALUctrl_funct3_o <= ALUctrl_funct3_i;
-        wr_o <= wr_i;
-        rs1_o <= rs1_i;
-        rs2_o <= rs2_i;
+        if(ID_Flush == 0) begin
+            id_ex_RegWrite_o <= id_ex_RegWrite_i;
+            id_ex_MemToReg_o <= id_ex_MemToReg_i;
+            id_ex_Branch_o <= id_ex_Branch_i;
+            id_ex_MemRead_o <= id_ex_MemRead_i;
+            id_ex_MemWrite_o <= id_ex_MemWrite_i;
+            id_ex_ALUop_o <= id_ex_ALUop_i;
+            id_ex_ALUsrc_o <= id_ex_ALUsrc_i;
+            branchAddr_o <= branchAddr_i;
+            rd1_o <= rd1_i;
+            rd2_o <= rd2_i;
+            imm_o <= imm_i;
+            ALUctrl_funct7_o <= ALUctrl_funct7_i;
+            ALUctrl_funct3_o <= ALUctrl_funct3_i;
+            wr_o <= wr_i;
+            rs1_o <= rs1_i;
+            rs2_o <= rs2_i;
+        end
+        else begin
+            id_ex_RegWrite_o <= 0;
+            id_ex_MemToReg_o <= 0;
+            id_ex_Branch_o <= 0;
+            id_ex_MemRead_o <= 0;
+            id_ex_MemWrite_o <= 0;
+            id_ex_ALUop_o <= 0;
+            id_ex_ALUsrc_o <= 0;
+            branchAddr_o <= 0;
+            rd1_o <= 0;
+            rd2_o <= 0;
+            imm_o <= 0;
+            ALUctrl_funct7_o <= 0;
+            ALUctrl_funct3_o <= 0;
+            wr_o <= 0;
+            rs1_o <= 0;
+            rs2_o <= 0;
+        end
     end
 
 endmodule
