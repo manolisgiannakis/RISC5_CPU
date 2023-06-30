@@ -8,7 +8,7 @@ initial begin
     IF_Flush <= 0;
     ID_Flush <= 0;
 end
-
+//handling the occurence of load-use sequence after a conditional branch.
 always @(branch) begin
     if(branch) begin
         mux_to_pc <= 1;

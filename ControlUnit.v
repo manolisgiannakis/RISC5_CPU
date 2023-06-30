@@ -56,9 +56,9 @@ module ControlUnit (opcode, ALUop, Branch, MemRead, MemWrite, RegWrite, MemToReg
                 MemToReg = 1'b0;
             end
 
-            7'b0110111 : begin //LUI
+            7'b0110111 : begin //LUI 0110111
                 ALUop = 2'b11;
-                ALUsrc = 2'b0;
+                ALUsrc = 2'b1;
                 Branch = 1'b0;
                 MemRead = 1'b0;
                 MemWrite = 1'b0;

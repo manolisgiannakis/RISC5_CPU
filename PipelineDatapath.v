@@ -35,7 +35,7 @@ module PipelineDatapath (clk, reset);
 
 
     //---------EX
-    wire zeroFlag, ALUsrc_out, to_branchUnit;
+    wire zeroFlag, ALUsrc_out, to_branchUnit, sel_mux_to_pc, IFreg_flush, IDreg_flush;
     wire [31:0] rd1_MUX, rd2_MUX, imm_MUX, branch_address, ALU_0, ALU_1, result, adder_res, ALU_2nd_in;
     wire [2:0] funct3_to_out;
     wire [6:0] funct7_to_out;
@@ -66,7 +66,7 @@ module PipelineDatapath (clk, reset);
     PC pc (
         .clk        (clk),
         .reset      (reset),
-        .pc_input   (add4), //mux_to_pc
+        .pc_input   (mux_to_pc), //add4
         .hazDetect_PC (hazDetect_PC),
         .pc_output  (pc_out)
     );
@@ -78,7 +78,7 @@ module PipelineDatapath (clk, reset);
     );
 
     MUX32_2to1 pc_input_select (
-        .select_i (1'b0),
+        .select_i (sel_mux_to_pc), //1'b0
         .data0_i  (add4),
         .data1_i  (adder_res),
         .data_o   (mux_to_pc)
@@ -95,6 +95,7 @@ module PipelineDatapath (clk, reset);
     IF_ID if_id (
         .clk    (clk),
         .hazDetect_IF_ID (hazDetect_IF_ID),
+        .IF_Flush (IFreg_flush),
         .pc_i   (pc_out), 
         .inst_i (instMemOut), 
         .pc_o   (if_id_pc_o), 
@@ -114,7 +115,7 @@ module PipelineDatapath (clk, reset);
     );
 
 
-    HazDetectUnit hazDetection (
+    HazardDetectUnit hazDetection (
         .ID_EXrd        (wr_to_EX_MEM),
         .IF_IDrs1       (if_id_inst_o[19:15]),
         .IF_IDrs2       (if_id_inst_o[24:20]),
@@ -165,8 +166,9 @@ module PipelineDatapath (clk, reset);
     //-----------------------------------------------------------EX---------------------------------------------------------------
     ID_EX id_ex (
         .clk        (clk),
-        .id_ex_RegWrite_i (RegWrite), //WB
-        .id_ex_MemToReg_i (MemToReg),          //WB
+        .ID_Flush   (IDreg_flush),
+        .id_ex_RegWrite_i (RegWrite), 
+        .id_ex_MemToReg_i (MemToReg),          
         .id_ex_Branch_i   (Branch),
         .id_ex_MemRead_i  (MemRead),
         .id_ex_MemWrite_i (MemWrite),
@@ -249,6 +251,13 @@ module PipelineDatapath (clk, reset);
         .result     (result),
         .zeroFlag   (zeroFlag),
         .branch  (to_branchUnit) //wire to_branchUnit;
+    );
+
+    BranchUnit branch (
+        .branch     (to_branchUnit),
+        .mux_to_pc  (sel_mux_to_pc), //wire sel_mux_to_pc;
+        .IF_Flush   (IFreg_flush), //wire IFreg_flush, IDreg_flush;
+        .ID_Flush   (IDreg_flush)
     );
 
     

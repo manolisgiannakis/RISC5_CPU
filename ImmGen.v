@@ -18,10 +18,10 @@ module ImmGen (inst, imm);
                 imm = (inst[31]) ? ({20'b11111111111111111111, inst[31:25], inst[11:7]}) : ({20'b00000000000000000000, inst[31:25], inst[11:7]}); // S-type
             end
             7'b1100011 : begin
-                imm = (inst[31]) ? ({20'b11111111111111111111, inst[31], inst[7], inst[30:25], inst[11:8]}) : ({20'b00000000000000000000, inst[31], inst[7], inst[30:25], inst[11:8]}); // B-type
+                imm = (inst[31]) ? ({20'b11111111111111111111, inst[31:25], inst[11:7]}) : ({20'b00000000000000000000, inst[31:25], inst[11:7]}); // B-type
             end
             7'b0110111 : begin
-                imm = (inst[31]) ? ({12'b111111111111, inst[31:12]}) : ({12'b000000000000, inst[31:12]}); // U-type
+                imm = {inst[31:12], 12'b000000000000}; // U-type only LUI
             end
             default : begin
                 imm = 32'bx;

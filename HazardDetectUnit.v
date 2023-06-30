@@ -1,4 +1,4 @@
-module HazDetectUnit (ID_EXrd, IF_IDrs1, IF_IDrs2, ID_EXmemRead, PCwrite, IF_IDwrite, regWrite, memWrite);
+module HazardDetectUnit (ID_EXrd, IF_IDrs1, IF_IDrs2, ID_EXmemRead, PCwrite, IF_IDwrite, regWrite, memWrite);
     
     input ID_EXmemRead;
     input [4:0] ID_EXrd, IF_IDrs1, IF_IDrs2;
