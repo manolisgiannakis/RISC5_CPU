@@ -39,31 +39,39 @@ module ALU_control (ALUctrl_f7, ALUctrl_f3, ALUop, ALUctrl_lines);
             end
             2'b10 : begin
                 //ALUctrl_lines = (ALUctrl_f3[2]) ? 4'b0001 : 4'b0010;
-                case({ALUctrl_f3, ALUctrl_f7[5]})
-                    4'b0000 : begin //ADD
+                case({ALUctrl_f3, ALUctrl_f7[5], ALUctrl_f7[0]})
+                    5'b00000 : begin //ADD
                         ALUctrl_lines = 4'b0000;
                     end
-                    4'b0001 : begin //SUB
+                    5'b00010 : begin //SUB
                         ALUctrl_lines = 4'b0001;
                     end
-                    4'b0010 : begin //SLL
+                    5'b00100 : begin //SLL
                         ALUctrl_lines = 4'b0010;
                     end
-                    4'b1000 : begin //XOR
+                    5'b10000 : begin //XOR
                         ALUctrl_lines = 4'b0011;
                     end
-                    4'b1010 : begin //SRL
+                    5'b10100 : begin //SRL
                         ALUctrl_lines = 4'b0100;
                     end
-                    4'b1011 : begin //SRA
+                    5'b10110 : begin //SRA
                         ALUctrl_lines = 4'b0101;
                     end
-                    4'b1100 : begin //OR
+                    5'b11000 : begin //OR
                         ALUctrl_lines = 4'b0110;
                     end
-                    4'b1110 : begin //AND
+                    5'b11100 : begin //AND
                         ALUctrl_lines = 4'b0111;
                     end
+                    5'b00001 : begin //MUL
+                        ALUctrl_lines = 4'b1110;
+                    end
+                    5'b00101 : begin //MULH
+                        ALUctrl_lines = 4'b1111;
+                    end
+
+
 
                 endcase
             end

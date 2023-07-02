@@ -1,8 +1,9 @@
 /* */
 
-module ALU (data0, data1, ctrl, result, zeroFlag, branch);
+module ALU (data0, data1, ctrl, mul_res, result, zeroFlag, branch);
   input [31:0] data0, data1;
   input [3:0] ctrl;
+  output reg [63:0] mul_res;
   output reg [31:0] result;
   output reg zeroFlag;
   output reg branch;
@@ -61,6 +62,14 @@ module ALU (data0, data1, ctrl, result, zeroFlag, branch);
       end
       4'b1011 : begin //BGEU
         branch = (data0 >= data1) ? 1 : 0;
+      end
+      4'b1110 : begin //MUL
+        mul_res = data0 * data1;
+        result = mul_res[31:0];
+      end
+      4'b1111 : begin //MULH
+        mul_res = data0 * data1;
+        result = mul_res[63:32];
       end             
 
   endcase

@@ -37,6 +37,7 @@ module PipelineDatapath (clk, reset);
     //---------EX
     wire zeroFlag, ALUsrc_out, to_branchUnit, sel_mux_to_pc, IFreg_flush, IDreg_flush;
     wire [31:0] rd1_MUX, rd2_MUX, imm_MUX, branch_address, ALU_0, ALU_1, result, adder_res, ALU_2nd_in;
+    wire [63:0] mul_res;
     wire [2:0] funct3_to_out;
     wire [6:0] funct7_to_out;
     wire [4:0] wr_to_EX_MEM, rs1_FW_in, rs2_FW_in;
@@ -80,7 +81,7 @@ module PipelineDatapath (clk, reset);
     MUX32_2to1 pc_input_select (
         .select_i (sel_mux_to_pc), //1'b0
         .data0_i  (add4),
-        .data1_i  (adder_res),
+        .data1_i  (branch_address), //adder_res
         .data_o   (mux_to_pc)
     );
 
@@ -240,17 +241,18 @@ module PipelineDatapath (clk, reset);
     ALU_control ALUcontrol (
         .ALUctrl_f7        (funct7_to_out),
         .ALUctrl_f3        (funct3_to_out),
-        .ALUop          (ALUop_out), 
-        .ALUctrl_lines  (ALUctrl_lines)
+        .ALUop             (ALUop_out), 
+        .ALUctrl_lines     (ALUctrl_lines)
     );
 
     ALU alu (
         .data0      (ALU_0),
         .data1      (ALU_2nd_in),
         .ctrl       (ALUctrl_lines),
+        .mul_res    (mul_res), //wire [63:0] mul_res;
         .result     (result),
         .zeroFlag   (zeroFlag),
-        .branch  (to_branchUnit) //wire to_branchUnit;
+        .branch     (to_branchUnit) //wire to_branchUnit;
     );
 
     BranchUnit branch (
@@ -329,7 +331,7 @@ module PipelineDatapath (clk, reset);
 
 
     initial begin
-        $monitor ("[$monitor_IF] time = %t, inst = %h, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, wr_to_MEM_WB = %b, fw0 = %b, fw1 = %b", $time, instMemOut, rs1_FW_in, rs2_FW_in, result, wr_to_MEM_WB, fw0, fw1);
+        $monitor ("[$monitor_IF] time = %t, mux_to_pc = %h, add4 = %h, branch_address = %h, pc_out = %h, inst = %h, if_id_pc_o = %h, Immed = %h, adder_res = %h, Alu_res = %h, branch = %h", $time, mux_to_pc, add4, branch_address, pc_out, instMemOut, if_id_pc_o, Immed, adder_res, result, to_branchUnit);
         //$monitor ("[$monitor] time = %t, RegWrite = %b, rs1_FW_in = %b, rs2_FW_in = %b, id_ex_RegWrite_o = %b, EX_MEMrd = %b, EX_MEMregWrite = %b, MEM_WBrd = %b, MEM_WBregWrite = %b, fw0 = %b, fw1 = %b", $time, RegWrite, rs1_FW_in, rs2_FW_in, RegWrite_to_ex_mem, wr_to_MEM_WB, RegWrite_to_mem_wb, wr_to_regFile, RegWrite_out, fw0, fw1);
     end
 
