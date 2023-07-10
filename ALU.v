@@ -63,13 +63,11 @@ module ALU (data0, data1, ctrl, mul_res, result, zeroFlag, branch);
       4'b1011 : begin //BGEU
         branch = (data0 >= data1) ? 1 : 0;
       end
-      4'b1110 : begin //MUL
-        mul_res = data0 * data1;
-        result = mul_res[31:0];
+      4'b1110 : begin //SLT
+        result = ($signed(data0) < $signed(data1)) ? 1 : 0;
       end
-      4'b1111 : begin //MULH
-        mul_res = data0 * data1;
-        result = mul_res[63:32];
+      4'b1111 : begin //SLTU
+        result = (data0 < data1) ? 1 : 0;
       end             
 
   endcase
