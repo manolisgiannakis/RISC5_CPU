@@ -20,8 +20,8 @@ module ImmGen (inst, imm);
             7'b1100011 : begin
                 imm = (inst[31]) ? ({19'b1111111111111111111, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}) : ({19'b0000000000000000000, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}); // B-type
             end
-            7'b0110111 : begin
-                imm = {inst[31:12], 12'b000000000000}; // U-type only LUI and AUIPC
+            7'b0x10111 : begin
+                imm = {inst[31:12], 12'b000000000000}; // U-type only LUI and AUIPC//maybe it needs to be 2 cases this one.
             end
             7'b1101111 : begin //JAL
                 imm = (inst[31]) ? ({11'b11111111111, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0}) : ({11'b00000000000, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0}); // I-type
