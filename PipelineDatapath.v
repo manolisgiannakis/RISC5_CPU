@@ -13,7 +13,7 @@
 // `include "PC.v"
 // `include "RegFile.v"
 
-module PipelineDatapath (clk, reset);
+module PipelineDatapath (clk, reset); // add more outputs
 
 
     //------------------------------I/O ports---------------------------------
@@ -65,7 +65,7 @@ module PipelineDatapath (clk, reset);
     //----------------------------------------------MODULES---------------------------------------------------    
     
     
-    //IF
+    //-------------------------------------------------IF-----------------------------------------------------
     PC pc (
         .clk        (clk),
         .reset      (reset),
@@ -130,6 +130,7 @@ module PipelineDatapath (clk, reset);
 
 
     HazardDetectUnit hazDetection (
+        .reset_haz      (reset),
         .ID_EXrd        (wr_to_EX_MEM),
         .IF_IDrs1       (if_id_inst_o[19:15]),
         .IF_IDrs2       (if_id_inst_o[24:20]),
@@ -223,6 +224,7 @@ module PipelineDatapath (clk, reset);
     );
 
     ForwardingUnit FW (
+        .reset_fw (reset),
         .ID_EXrs1   (rs1_FW_in), 
         .ID_EXrs2   (rs2_FW_in), 
         .EX_MEMrd   (wr_to_MEM_WB), 
@@ -266,6 +268,7 @@ module PipelineDatapath (clk, reset);
     );
 
     ALU alu (
+        .reset_alu  (reset),
         .data0      (ALU_0),
         .data1      (ALU_2nd_in),
         .ctrl       (ALUctrl_lines),
@@ -288,13 +291,14 @@ module PipelineDatapath (clk, reset);
         .data_o     (Utype_res)
     );
 
-    BitwiseAnd AND (
+    BitwiseAnd AND_Bitwise (
         .data0      (result),
         .data1      (32'hFFFFFFFE),
         .out        (out_AND) //wire [31:0] out_AND;
     );
 
     BranchUnit branch (
+        .reset_br   (reset),
         .jump       (jump_to_branchUnit),
         .branch     (to_branchUnit),
         .mux_to_pc  (sel_mux_to_pc), //wire sel_mux_to_pc;
@@ -381,7 +385,8 @@ module PipelineDatapath (clk, reset);
 
 
     initial begin
-        $monitor ("[$monitor_IF] time = %t, mux_to_pc = %h, add4 = %h, branch_address = %h, pc_out = %h, inst = %h, if_id_pc_o = %h, Immed = %h, adder_res = %h, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, fw0 = %b, fw1 = %b, branch = %h", $time, mux_to_pc, add4, branch_address, pc_out, instMemOut, if_id_pc_o, Immed, adder_res, rs1_FW_in, rs2_FW_in, result, fw0, fw1, to_branchUnit);
+        //$monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, if_id_pc_o = %h, branch_address = %h, Alu_res = %h, branch = %h, IDreg_flush = %b", $time, sel_mux_to_pc, instMemOut, if_id_pc_o, branch_address, result, to_branchUnit, IDreg_flush);
+        $monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, rd1_MUX = %h, rd2_MUX = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, writeData_to_regFile = %h", $time, sel_mux_to_pc, instMemOut, rd1_MUX, rd2_MUX, fw0, fw1, ALU_0, ALU_2nd_in, result, writeData_to_regFile);
         //$monitor ("[$monitor] time = %t, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, fw0 = %b, fw1 = %b", $time, rs1_FW_in, rs2_FW_in, result, fw0, fw1);
 
     end

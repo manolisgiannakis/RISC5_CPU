@@ -18,13 +18,13 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
         for (i = 0; i < 32; i = i + 1) begin
             register[i] <= 'b0;
         end
-        register[5] <= 32'd4;
+        register[5] <= 32'd4; //for simulation purposes
     end
 
     //
 
     //write data in positive edge of the clock
-    always @(posedge clk) begin 
+    always @(wd) begin //we want to write data in the first half of the clock cycle 
         if(RegWrite) begin
             register[wr] <= wd;
         end

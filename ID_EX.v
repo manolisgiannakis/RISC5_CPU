@@ -84,7 +84,7 @@ module ID_EX (
             id_ex_MemToReg_o <= 0;
             id_ex_MemRead_o <= 0;
             id_ex_MemWrite_o <= 0;
-            id_ex_ALUop_o <= 0;
+            id_ex_ALUop_o <= 2'b01; //trick because i want branch and flush signals(ID_flush....) to go to 0 in the next cycle if they are 1.
             id_ex_ALUsrc_o <= 0;
             branchAddr_o <= 0;
             id_ex_pc_o <= 0;
