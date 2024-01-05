@@ -8,7 +8,6 @@ module DataMem (clk, addr, MemWrite, MemRead, WriteData, funct3, ReadData);
     //data memory
     reg [7:0] data_memory [4095:0]; //4096 x 8bits, 4KBytes
 
-    //assign ReadData = (MemRead) ? {data_memory[addr[11:0]+3], data_memory[addr[11:0]+2], data_memory[addr[11:0]+1], data_memory[addr[11:0]]} : 32'hFF;
 
     always @(posedge clk) begin
 

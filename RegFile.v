@@ -23,7 +23,6 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
 
     //
 
-    //write data in positive edge of the clock
     always @(wd) begin //we want to write data in the first half of the clock cycle 
         if(RegWrite) begin
             register[wr] <= wd;
