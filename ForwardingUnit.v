@@ -1,5 +1,4 @@
 module ForwardingUnit (reset_fw, ID_EXrs1, ID_EXrs2, EX_MEMrd, EX_MEMregWrite, MEM_WBrd, MEM_WBregWrite, FW0, FW1);
-    //add clock
     input EX_MEMregWrite, MEM_WBregWrite, reset_fw;
     input [4:0] ID_EXrs1, ID_EXrs2, EX_MEMrd, MEM_WBrd;
     output reg [1:0] FW0, FW1;

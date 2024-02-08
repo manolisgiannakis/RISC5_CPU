@@ -11,7 +11,7 @@ module InstructionMem (clk, addr, reset, inst);
         $readmemh("inst_memory.mem", inst_memory, 0, 4095);
     end
 
-    always @(addr) begin
+    always @(posedge clk) begin //addr
         inst <= {inst_memory[addr[11:0]], inst_memory[addr[11:0] + 1], inst_memory[addr[11:0] + 2], inst_memory[addr[11:0] + 3]}; //big endian
     end
 
