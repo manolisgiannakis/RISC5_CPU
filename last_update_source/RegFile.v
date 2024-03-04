@@ -21,22 +21,23 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
         register[5] <= 32'd4; 
     end
 
-    //
-
-    always @(wd, RegWrite, wr) begin //we want to write data in the first half of the clock cycle 
-        if(RegWrite) begin
-            register[wr] <= wd;
-        end
-        else begin
-            
-        end
-    end
-
     //read data - the register file will always output the values corresponding to read register numbers
-    //read data in negative edge of the clock
+    //read data in positive edge of the clock
     always @(posedge clk) begin 
         rd1 <= register[rr1];
         rd2 <= register[rr2];
     end
+
+    always @(*) begin //wd, RegWrite, wr   we want to write data in the first half of the clock cycle 
+        if(RegWrite) begin
+            register[wr] <= wd;
+        end
+        else begin
+            register[wr] <= register[wr];
+        end
+    end
+
+    
+    
 
 endmodule

@@ -13,7 +13,7 @@ output reg [1:0] mux_to_pc;
 
 
 //handling the occurence of load-use sequence after a conditional branch.
-always @(reset_br, branch, jump) begin //negedge clk
+always @(posedge clk) begin //negedge clk reset_br, branch, jump
     if (reset_br) begin
         mux_to_pc <= 2'b00;
         IF_Flush <= 0;
@@ -29,25 +29,27 @@ always @(reset_br, branch, jump) begin //negedge clk
             case(jump)
 
                 2'b00 : begin
-                mux_to_pc <= 2'b00;
-                IF_Flush <= 0;
-                ID_Flush <= 0;
+                    mux_to_pc <= 2'b00;
+                    IF_Flush <= 0;
+                    ID_Flush <= 0;
                 end
 
                 2'b01 : begin
-                mux_to_pc <= 2'b01;
-                IF_Flush <= 1;
-                ID_Flush <= 1;
+                    mux_to_pc <= 2'b01;
+                    IF_Flush <= 1;
+                    ID_Flush <= 1;
                 end
 
                 2'b10 : begin
-                mux_to_pc <= 2'b10;
-                IF_Flush <= 1;
-                ID_Flush <= 1;
+                    mux_to_pc <= 2'b10;
+                    IF_Flush <= 1;
+                    ID_Flush <= 1;
                 end
 
-                default : begin
-                    
+                2'b11 : begin
+                    mux_to_pc <= 2'b00;
+                    IF_Flush <= 0;
+                    ID_Flush <= 0;
                 end
             endcase
         end
