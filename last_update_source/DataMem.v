@@ -18,19 +18,19 @@ module DataMem (clk, addr, MemWrite, MemRead, WriteData, funct3, ReadData);
         if(MemWrite) begin //STORE
             case(funct3)
                 3'b000 : begin //store byte
-                    data_memory[addr[11:0]]     <= WriteData[7:0];
+                    data_memory[addr[11:0]] <= WriteData[7:0];
                 end
 
                 3'b001 : begin //store half
-                    data_memory[addr[11:0] + 1] <= WriteData[15:8];
-                    data_memory[addr[11:0]]     <= WriteData[7:0];
+                    data_memory[addr[11:0] + 1] <= WriteData[7:0];
+                    data_memory[addr[11:0]]     <= WriteData[15:8];
                 end
 
                 3'b010 : begin //store word
-                    data_memory[addr[11:0] + 3] <= WriteData[31:24];
-                    data_memory[addr[11:0] + 2] <= WriteData[23:16];
-                    data_memory[addr[11:0] + 1] <= WriteData[15:8];
-                    data_memory[addr[11:0]]     <= WriteData[7:0];
+                    data_memory[addr[11:0] + 3] <= WriteData[7:0];
+                    data_memory[addr[11:0] + 2] <= WriteData[15:8];
+                    data_memory[addr[11:0] + 1] <= WriteData[23:16];
+                    data_memory[addr[11:0]]     <= WriteData[31:24];
                 end
 
                 default : begin
@@ -45,11 +45,11 @@ module DataMem (clk, addr, MemWrite, MemRead, WriteData, funct3, ReadData);
                 end
 
                 3'b001 : begin //load half
-                    ReadData <= $signed({data_memory[addr[11:0]+1], data_memory[addr[11:0]]});
+                    ReadData <= $signed({data_memory[addr[11:0]], data_memory[addr[11:0]+1]});
                 end
 
                 3'b010 : begin //load word
-                    ReadData <= {data_memory[addr[11:0]+3], data_memory[addr[11:0]+2], data_memory[addr[11:0]+1], data_memory[addr[11:0]]};
+                    ReadData <= {data_memory[addr[11:0]], data_memory[addr[11:0]+1], data_memory[addr[11:0]+2], data_memory[addr[11:0]+3]};
                 end
 
                 3'b100 : begin //load byte unsigned
@@ -57,7 +57,7 @@ module DataMem (clk, addr, MemWrite, MemRead, WriteData, funct3, ReadData);
                 end
 
                 3'b101 : begin //load half unsigned
-                    ReadData <= {data_memory[addr[11:0]+1], data_memory[addr[11:0]]};
+                    ReadData <= {data_memory[addr[11:0]], data_memory[addr[11:0]+1]};
                 end
                 
                 default : begin
