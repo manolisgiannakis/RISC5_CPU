@@ -1,10 +1,12 @@
-module PipelineDatapath (clk, reset, mux_to_pc); // add outputs
+module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, DataMem_out); // add outputs
 
 
     //------------------------------I/O ports---------------------------------
     input clk, reset;
-    output mux_to_pc;
-
+    output [31:0] mux_to_pc, instMemOut, rd1_id_ex, ALU_0, ALU_2nd_in, result, DataMem_out;
+    output [1:0] fw0, fw1;
+    output [2:0] f3_to_dataMem;
+    output hazDetect_IF_ID, RegWrite_to_ex_mem;
     //------------------------Wires for datapath-----------------------------
 
     //---IF
@@ -84,6 +86,12 @@ module PipelineDatapath (clk, reset, mux_to_pc); // add outputs
         .data_o     (mux_to_pc)
     );
 
+    /* InstCache instruction_cache (
+        .clk    (clk),
+        .addr   (pc_out),
+        .reset  (reset),
+        .inst   (instMemOut)
+    ); */
     InstructionMem instMem (
         .clk    (clk),
         .addr   (pc_out),
