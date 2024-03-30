@@ -36,7 +36,7 @@ module EX_MEM (
     output reg [4:0] wr_o;
     output reg [2:0] funct3_o;
 
-    always @(posedge clk) begin
+    always @(negedge clk) begin
         ex_mem_RegWrite_o <= ex_mem_RegWrite_i;
         ex_mem_MemToReg_o <= ex_mem_MemToReg_i;
         ex_mem_MemRead_o  <= ex_mem_MemRead_i;

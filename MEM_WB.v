@@ -27,7 +27,7 @@ module MEM_WB (
     output reg [31:0] mem_wb_pcPlusFour_o, readMem_o, ALUresult_o, mem_wb_Utype_res_o;
     output reg [4:0] wr_o;
 
-    always @(posedge clk) begin
+    always @(negedge clk) begin
         readMem_o <= readMem_i;
         ALUresult_o <= ALUresult_i;
         wr_o <= wr_i;

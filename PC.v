@@ -6,7 +6,7 @@ module PC (clk, reset, hazDetect_PC, pc_input, pc_output);
     output reg [31:0] pc_output;
 
 
-    always @(posedge clk) begin
+    always @(negedge clk) begin //posedge
         if(hazDetect_PC) begin
             if(reset) begin
                 pc_output <= 32'b0;

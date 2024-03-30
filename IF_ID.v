@@ -4,7 +4,7 @@ input clk, hazDetect_IF_ID, IF_Flush;
 input [31:0] pcPlusFour_i, pc_i, inst_i;
 output reg [31:0] pcPlusFour_o, pc_o, inst_o;
 
-always @(posedge clk) begin
+always @(negedge clk) begin
     if(IF_Flush == 0) begin
         if(hazDetect_IF_ID) begin
             pcPlusFour_o <= pcPlusFour_i;

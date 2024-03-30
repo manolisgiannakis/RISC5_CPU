@@ -55,7 +55,7 @@ module ID_EX (
     output reg [2:0] ALUctrl_funct3_o;
     output reg [4:0] wr_o, rs1_o, rs2_o;
 
-    always @(posedge clk) begin
+    always @(negedge clk) begin
         if(ID_Flush == 0) begin
             id_ex_LUIorAUIPC_o <= id_ex_LUIorAUIPC_i;
             id_ex_Jump_o <= id_ex_Jump_i;

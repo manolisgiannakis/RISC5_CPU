@@ -1,31 +1,20 @@
-// `include "Adder32.v"
-// `include "ALU_control.v"
-// `include "ALU.v"
-// `include "ControlUnit.v"
-// `include "DataMem.v"
-// `include "EX_MEM.v"
-// `include "ID_EX.v"
-// `include "IF_ID.v"
-// `include "ImmGen.v"
-// `include "InstructionMem.v"
-// `include "MEM_WB.v"
-// `include "MUX32_2to1.v"
-// `include "PC.v"
-// `include "RegFile.v"
-
-module PipelineDatapath (clk, reset); // add more outputs
+module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, DataMem_out); // add outputs
 
 
     //------------------------------I/O ports---------------------------------
-    input clk, reset; //FIX RESET SIGNAL
-
+    input clk, reset;
+    output [31:0] mux_to_pc, instMemOut, rd1_id_ex, ALU_0, ALU_2nd_in, result, DataMem_out;
+    output [1:0] fw0, fw1;
+    output [2:0] f3_to_dataMem;
+    output hazDetect_IF_ID, RegWrite_to_ex_mem;
     //------------------------Wires for datapath-----------------------------
 
-    //---------IF
-    wire [31:0] add4, branchAddr, mux_to_pc, pc_out, instMemOut;
+    //---IF
+    wire [31:0] add4, branchAddr, mux_to_pc, pc_out, instMemOut, inst;
+    wire [255:0] block_out;
 
     
-    //---------ID
+    //---ID
     wire [31:0] if_id_pc_o, if_id_inst_o, if_id_pcPlusFour, rd1_id_ex, rd2_id_ex, Immed;
     wire [1:0] ImmGenCtrl, ALUop, MemToReg, Jump;
     wire Branch, MemRead, MemWrite, RegWrite, ALUsrc, LUIorAUIPC;
@@ -34,9 +23,10 @@ module PipelineDatapath (clk, reset); // add more outputs
     
 
 
-    //---------EX
+    //---EX
     wire zeroFlag, ALUsrc_out, to_branchUnit, IFreg_flush, IDreg_flush;
-    wire [31:0] rd1_MUX, rd2_MUX, imm_MUX, branch_address, ALU_0, ALU_1, result, adder_res, ALU_2nd_in, id_ex_pcPlusFour, out_AND, id_ex_pc_out, pcPlusImm_U_type, Utype_res;
+    wire [31:0] rd1_MUX, rd2_MUX, imm_MUX, branch_address, ALU_0, ALU_1, result, adder_res;
+    wire [31:0] ALU_2nd_in, id_ex_pcPlusFour, out_AND, id_ex_pc_out, pcPlusImm_U_type, Utype_res;
     wire [63:0] mul_res;
     wire [2:0] funct3_to_out;
     wire [6:0] funct7_to_out;
@@ -47,16 +37,17 @@ module PipelineDatapath (clk, reset); // add more outputs
     wire [1:0] fw0, fw1;
 
 
-    //---------MEM
+    //---MEM
     wire zero_AND;
     wire [1:0] MemToReg_to_mem_wb;
     wire RegWrite_to_mem_wb, Branch_out, MemRead_out, MemWrite_out;
-    wire [31:0] res_to_DataMem_Addr, rd2_to_DataMem_wd, DataMem_out, Data_from_Mem, ALUres_toMUX, ex_mem_pcPlusFour, ex_mem_Utype_res;
+    wire [31:0] res_to_DataMem_Addr, rd2_to_DataMem_wd, DataMem_out, Data_from_Mem, ALUres_toMUX; 
+    wire [31:0] ex_mem_pcPlusFour, ex_mem_Utype_res;
     wire [4:0] wr_to_MEM_WB, wr_to_regFile;
     wire [2:0] f3_to_dataMem;
 
 
-    //----------WB
+    //---WB
     wire [31:0] writeData_to_regFile, mem_wb_pcPlusFour, mem_wb_Utype_res;
     wire [1:0] MemToReg_out;
     wire RegWrite_out;
@@ -76,7 +67,7 @@ module PipelineDatapath (clk, reset); // add more outputs
 
     Adder32 PCadd4 (
         .data1   (pc_out),
-        .data2   (32'd4),
+        .data2   (32'd1), //4 when InstructionMem
         .data_o  (add4)
     );
 
@@ -96,12 +87,32 @@ module PipelineDatapath (clk, reset); // add more outputs
         .data_o     (mux_to_pc)
     );
 
-    InstructionMem instMem (
+    InstCache instruction_cache (
         .clk    (clk),
         .addr   (pc_out),
         .reset  (reset),
         .inst   (instMemOut)
     );
+
+    /* MUX32_8to1 cache_mux (
+        .select_i (pc_out[2:0]),
+        .data0_i (block_out[255:224]),
+        .data1_i (block_out[223:192]),
+        .data2_i (block_out[191:160]),
+        .data3_i (block_out[159:128]),
+        .data4_i (block_out[127:96]),
+        .data5_i (block_out[95:64]),
+        .data6_i (block_out[63:32]),
+        .data7_i (block_out[31:0]),
+        .data_o  (instMemOut)
+    ); */
+
+    /* InstructionMem instMem (
+        .clk    (clk),
+        .addr   (pc_out),
+        .reset  (reset),
+        .inst   (instMemOut)
+    ); */
     // INSTRUCTION MEM
     
 
@@ -187,10 +198,10 @@ module PipelineDatapath (clk, reset); // add more outputs
         .ID_Flush   (IDreg_flush),
         .id_ex_LUIorAUIPC_i (LUIorAUIPC),
         .id_ex_Jump_i     (Jump),
-        .id_ex_RegWrite_i (RegWrite), 
+        .id_ex_RegWrite_i (regWrite_to_ID_EX), 
         .id_ex_MemToReg_i (MemToReg),          
         .id_ex_MemRead_i  (MemRead),
-        .id_ex_MemWrite_i (MemWrite),
+        .id_ex_MemWrite_i (memWrite_to_ID_EX),
         .id_ex_ALUop_i    (ALUop),
         .id_ex_ALUsrc_i   (ALUsrc), 
         .branchAddr_i     (adder_res),
@@ -300,6 +311,7 @@ module PipelineDatapath (clk, reset); // add more outputs
     );
 
     BranchUnit branch (
+        .clk        (clk),
         .reset_br   (reset),
         .jump       (jump_to_branchUnit),
         .branch     (to_branchUnit),
@@ -387,7 +399,7 @@ module PipelineDatapath (clk, reset); // add more outputs
 
     initial begin
         //$monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, if_id_pc_o = %h, branch_address = %h, Alu_res = %h, branch = %h, IDreg_flush = %b", $time, sel_mux_to_pc, instMemOut, if_id_pc_o, branch_address, result, to_branchUnit, IDreg_flush);
-        $monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, rd1_MUX = %h, rd2_MUX = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, writeData_to_regFile = %h", $time, sel_mux_to_pc, instMemOut, rd1_MUX, rd2_MUX, fw0, fw1, ALU_0, ALU_2nd_in, result, writeData_to_regFile);
+        $monitor ("[$monitor_IF] time = %t, pc_out = %h, inst = %h, branchAddr = %h, rd1_id_ex = %h, hazDetect_IF_ID = %h, RegWrite_to_ex_mem = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, f3_to_dataMem = %b, DataMem_out = %h", $time, pc_out, instMemOut, adder_res, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, DataMem_out);
         //$monitor ("[$monitor] time = %t, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, fw0 = %b, fw1 = %b", $time, rs1_FW_in, rs2_FW_in, result, fw0, fw1);
 
     end

@@ -16,7 +16,7 @@ module ALU (reset_alu, data0, data1, ctrl, mul_res, result, zeroFlag, branch);
 
   always@(*) begin
       if (reset_alu) begin
-        branch = 0;
+        branch <= 0;
       end
 
       case(ctrl)
@@ -25,60 +25,68 @@ module ALU (reset_alu, data0, data1, ctrl, mul_res, result, zeroFlag, branch);
         //end
 
         4'b0000 : begin //ADD
-          result = data0 + data1;
-          branch = 0;
+          result <= data0 + data1;
+          branch <= 0;
         end
         4'b0001 : begin //SUB
-          result = data0 - data1;
-          branch = 0;
+          result <= data0 - data1;
+          branch <= 0;
         end
         4'b0010 : begin //SLL
-          result = data0 << data1[4:0];
-          branch = 0;
+          result <= data0 << data1[4:0];
+          branch <= 0;
         end
         4'b0011 : begin //XOR
-          result = data0 ^ data1;
-          branch = 0;
+          result <= data0 ^ data1;
+          branch <= 0;
         end
         4'b0100 : begin //SRL
-          result = data0 >> data1[4:0];
-          branch = 0;
+          result <= data0 >> data1[4:0];
+          branch <= 0;
         end
         4'b0101 : begin //SRA
-          result = data0 >>> data1[4:0];
-          branch = 0;
+          result <= data0 >>> data1[4:0];
+          branch <= 0;
         end
         4'b0110 : begin //OR
-          result = data0 | data1;
-          branch = 0;
+          result <= data0 | data1;
+          branch <= 0;
         end
         4'b0111 : begin //AND
-          result = data0 & data1;
-          branch = 0;
+          result <= data0 & data1;
+          branch <= 0;
         end
         4'b1100 : begin //BEQ // for branch-> 1: branch adress, 0: addr + 4.
-          branch = (data0 == data1) ? 1 : 0;
+          branch <= (data0 == data1) ? 1 : 0;
+          result <= 0;
         end
         4'b1101 : begin //BNE
-          branch = (data0 != data1) ? 1 : 0;
+          branch <= (data0 != data1) ? 1 : 0;
+          result <= 0;
         end
         4'b1000 : begin //BLT
-          branch = ($signed(data0) <  $signed(data1)) ? 1 : 0;
+          branch <= ($signed(data0) <  $signed(data1)) ? 1 : 0;
+          result <= 0;
         end
         4'b1001 : begin //BGE
-          branch = ($signed(data0) >= $signed(data1)) ? 1 : 0;
+          branch <= ($signed(data0) >= $signed(data1)) ? 1 : 0;
+          result <= 0;
         end
         4'b1010 : begin //BLTU
-          branch = (data0 <  data1) ? 1 : 0;
+          branch <= (data0 <  data1) ? 1 : 0;
+          result <= 0;
         end
         4'b1011 : begin //BGEU
-          branch = (data0 >= data1) ? 1 : 0;
+          branch <= (data0 >= data1) ? 1 : 0;
+          result <= 0;
         end
         4'b1110 : begin //SLT
-          result = ($signed(data0) < $signed(data1)) ? 1 : 0;
+          result <= ($signed(data0) < $signed(data1)) ? 1 : 0;
+          branch <= 0;
         end
         4'b1111 : begin //SLTU
-          result = (data0 < data1) ? 1 : 0;
+          result <= (data0 < data1) ? 1 : 0;
+          branch <= 0;
         end             
       endcase
 

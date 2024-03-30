@@ -14,26 +14,30 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
 
     integer i;
 
-    initial begin
+    initial begin //for simulation purposes
         for (i = 0; i < 32; i = i + 1) begin
             register[i] <= 'b0;
         end
-        register[5] <= 32'd4; //for simulation purposes
-    end
-
-    //
-
-    always @(wd) begin //we want to write data in the first half of the clock cycle 
-        if(RegWrite) begin
-            register[wr] <= wd;
-        end
+        register[5] <= 32'd4; 
     end
 
     //read data - the register file will always output the values corresponding to read register numbers
-    //read data in negative edge of the clock
-    always @(negedge clk) begin 
+    //read data in positive edge of the clock
+    always @(posedge clk) begin //ΔΙΟΡΘΩΝΩ
         rd1 <= register[rr1];
         rd2 <= register[rr2];
     end
+
+    always @(*) begin //wd, RegWrite, wr   we want to write data in the first half of the clock cycle 
+        if(RegWrite) begin
+            register[wr] <= wd;
+        end
+        else begin
+            register[wr] <= register[wr];
+        end
+    end
+
+    
+    
 
 endmodule
