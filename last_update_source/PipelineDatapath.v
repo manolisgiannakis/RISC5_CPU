@@ -10,7 +10,8 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
     //------------------------Wires for datapath-----------------------------
 
     //---IF
-    wire [31:0] add4, branchAddr, mux_to_pc, pc_out, instMemOut;
+    wire [31:0] add4, branchAddr, mux_to_pc, pc_out, instMemOut, inst;
+    wire [255:0] block_out;
 
     
     //---ID
@@ -66,7 +67,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
 
     Adder32 PCadd4 (
         .data1   (pc_out),
-        .data2   (32'd4),
+        .data2   (32'd1), //4 when InstructionMem
         .data_o  (add4)
     );
 
@@ -86,18 +87,19 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
         .data_o     (mux_to_pc)
     );
 
-    /* InstCache instruction_cache (
-        .clk    (clk),
-        .addr   (pc_out),
-        .reset  (reset),
-        .inst   (instMemOut)
-    ); */
-    InstructionMem instMem (
+    InstCache instruction_cache (
         .clk    (clk),
         .addr   (pc_out),
         .reset  (reset),
         .inst   (instMemOut)
     );
+
+    /* InstructionMem instMem (
+        .clk    (clk),
+        .addr   (pc_out),
+        .reset  (reset),
+        .inst   (instMemOut)
+    ); */
     // INSTRUCTION MEM
     
 
@@ -334,7 +336,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
 
     
 
-    DataMem dataMemory (
+    /* DataMem dataMemory (
         .clk        (clk), 
         .addr       (res_to_DataMem_Addr), 
         .MemWrite   (MemWrite_out), 
@@ -342,6 +344,16 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
         .WriteData  (rd2_to_DataMem_wd),
         .funct3     (f3_to_dataMem),
         .ReadData   (DataMem_out)
+    ); */
+
+    DataCache dataMemory (
+        .clk           (clk), 
+        .addr          (res_to_DataMem_Addr), 
+        .MemWrite      (MemWrite_out), 
+        .MemRead       (MemRead_out), 
+        .WriteData     (rd2_to_DataMem_wd),
+        .funct3        (f3_to_dataMem),
+        .output_data   (DataMem_out)
     );
 
 
@@ -384,7 +396,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
 
     initial begin
         //$monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, if_id_pc_o = %h, branch_address = %h, Alu_res = %h, branch = %h, IDreg_flush = %b", $time, sel_mux_to_pc, instMemOut, if_id_pc_o, branch_address, result, to_branchUnit, IDreg_flush);
-        $monitor ("[$monitor_IF] time = %t, pc_out = %h, inst = %h, rd1_id_ex = %h, hazDetect_IF_ID = %h, RegWrite_to_ex_mem = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, f3_to_dataMem = %b, DataMem_out = %h", $time, pc_out, instMemOut, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, DataMem_out);
+        $monitor ("[$monitor_IF] time = %t, pc_out = %h, inst = %h, branchAddr = %h, rd1_id_ex = %h, hazDetect_IF_ID = %h, RegWrite_to_ex_mem = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, f3_to_dataMem = %b, res_to_DataMem_Addr = %h, DataMem_out = %h", $time, pc_out, instMemOut, adder_res, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, res_to_DataMem_Addr, DataMem_out);
         //$monitor ("[$monitor] time = %t, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, fw0 = %b, fw1 = %b", $time, rs1_FW_in, rs2_FW_in, result, fw0, fw1);
 
     end

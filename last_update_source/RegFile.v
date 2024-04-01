@@ -23,7 +23,7 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
 
     //read data - the register file will always output the values corresponding to read register numbers
     //read data in positive edge of the clock
-    always @(posedge clk) begin 
+    always @(posedge clk) begin //ΔΙΟΡΘΩΝΩ
         rd1 <= register[rr1];
         rd2 <= register[rr2];
     end

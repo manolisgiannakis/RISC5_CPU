@@ -7,7 +7,7 @@ module InstCacheTest();
     InstCache test (clk, addr, reset, inst);
 
     initial begin
-        clk <= 0; addr <= 32'd0;
+        clk <= 0; addr <= 32'h00000000;
     end
 
     always #5 clk <= !clk;
