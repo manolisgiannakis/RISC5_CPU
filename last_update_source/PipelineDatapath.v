@@ -18,7 +18,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
     wire [31:0] if_id_pc_o, if_id_inst_o, if_id_pcPlusFour, rd1_id_ex, rd2_id_ex, Immed;
     wire [1:0] ImmGenCtrl, ALUop, MemToReg, Jump;
     wire Branch, MemRead, MemWrite, RegWrite, ALUsrc, LUIorAUIPC;
-    wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
+    wire hazDetect_PC, hazDetect_IF_ID, hazDetect_ID_EX, reg_write, mem_write;
     wire regWrite_to_ID_EX, memWrite_to_ID_EX;
     
 
@@ -136,7 +136,8 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
         .IF_IDrs2       (if_id_inst_o[24:20]),
         .ID_EXmemRead   (MemRead_to_ex_mem),
         .PCwrite        (hazDetect_PC), //wire hazDetect_PC, hazDetect_IF_ID, reg_write, mem_write;
-        .IF_IDwrite     (hazDetect_IF_ID), 
+        .IF_IDwrite     (hazDetect_IF_ID),
+        .ID_EXwrite     (hazDetect_ID_EX),
         .regWrite       (reg_write), 
         .memWrite       (mem_write)
     );
@@ -182,6 +183,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
     //--------------------------------------------------------EX-------------------------------------------------------
     ID_EX id_ex (
         .clk        (clk),
+        .hazDetect_ID_EX  (hazDetect_ID_EX),
         .ID_Flush   (IDreg_flush),
         .id_ex_LUIorAUIPC_i (LUIorAUIPC),
         .id_ex_Jump_i     (Jump),
@@ -396,7 +398,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
 
     initial begin
         //$monitor ("[$monitor_IF] time = %t, sel_mux_to_pc = %b, inst = %h, if_id_pc_o = %h, branch_address = %h, Alu_res = %h, branch = %h, IDreg_flush = %b", $time, sel_mux_to_pc, instMemOut, if_id_pc_o, branch_address, result, to_branchUnit, IDreg_flush);
-        $monitor ("[$monitor_IF] time = %t, pc_out = %h, inst = %h, branchAddr = %h, rd1_id_ex = %h, hazDetect_IF_ID = %h, RegWrite_to_ex_mem = %h, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, f3_to_dataMem = %b, res_to_DataMem_Addr = %h, DataMem_out = %h", $time, pc_out, instMemOut, adder_res, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, fw0, fw1, ALU_0, ALU_2nd_in, result, f3_to_dataMem, res_to_DataMem_Addr, DataMem_out);
+        $monitor ("[$monitor_IF] time = %t, pc_out = %h, inst = %h, branchAddr = %h, rd1_id_ex = %h, hazDetect_IF_ID = %h, RegWrite_to_ex_mem = %h, rd1_MUX = %d, fw0 = %b, fw1 = %b, data0 = %d, data1 = %d, Alu_res = %d, branch = %b, IDEX_rs2 = %d, MEMWB_rd = %d, DataMem_out = %h", $time, pc_out, instMemOut, adder_res, rd1_id_ex, hazDetect_IF_ID, RegWrite_to_ex_mem, rd1_MUX, fw0, fw1, ALU_0, ALU_2nd_in, result, to_branchUnit, rs2_FW_in, wr_to_regFile, DataMem_out);
         //$monitor ("[$monitor] time = %t, rs1_FW_in = %b, rs2_FW_in = %b, Alu_res = %h, fw0 = %b, fw1 = %b", $time, rs1_FW_in, rs2_FW_in, result, fw0, fw1);
 
     end
