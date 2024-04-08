@@ -1,12 +1,10 @@
 /* */
 
-module ALU (reset_alu, data0, data1, ctrl, mul_res, result, zeroFlag, branch);
+module ALU (reset_alu, data0, data1, ctrl, result, branch);
   input reset_alu;
   input [31:0] data0, data1;
   input [3:0] ctrl;
-  output reg [63:0] mul_res;
   output reg [31:0] result;
-  output reg zeroFlag;
   output reg branch;
 
   // initial begin

@@ -24,7 +24,7 @@ module InstCache (clk, addr, reset, inst);
     initial begin
         $readmemh("tags.mem", tags);
         $readmemh("data.mem", data);
-        $readmemb("valid_bits.mem", valid_bits, 0, 31);
+        $readmemb("valid_bits.mem", valid_bits);
     end
     
     assign block = data[addr[7:3]];

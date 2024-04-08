@@ -15,7 +15,7 @@ module InstCache (clk, addr, reset, inst);
 
     
 
-    //cache modules, 4KBytes  TAG_WIDTH = 24, INDEX_WIDTH = 5, OFFSET_WIDTH = 3
+    //cache modules, 1KByte  TAG_WIDTH = 24, INDEX_WIDTH = 5, OFFSET_WIDTH = 3
     reg [23:0] tags [31:0];
     reg [255:0] data [31:0]; //1KByte
     reg valid_bits [31:0];
@@ -24,7 +24,7 @@ module InstCache (clk, addr, reset, inst);
     initial begin
         $readmemh("tags.mem", tags);
         $readmemh("data.mem", data);
-        $readmemb("valid_bits.mem", valid_bits, 0, 31);
+        $readmemb("valid_bits.mem", valid_bits);
     end
     
     assign block = data[addr[7:3]];
@@ -55,7 +55,7 @@ module InstCache (clk, addr, reset, inst);
                     inst <= block[63:32];
                 end
                 3'b111: begin
-                    inst <= block[31:0];
+                    inst <= block[31:0]; //31
                 end
             endcase
         end
@@ -63,18 +63,4 @@ module InstCache (clk, addr, reset, inst);
             inst <= 32'hF;
         end
     end
-
-    /* MUX32_8to1 cache_mux (
-        .select_i (addr[2:0]),
-        .data0_i (block[255:224]),
-        .data1_i (block[223:192]),
-        .data2_i (block[191:160]),
-        .data3_i (block[159:128]),
-        .data4_i (block[127:96]),
-        .data5_i (block[95:64]),
-        .data6_i (block[63:32]),
-        .data7_i (block[31:0]),
-        .data_o  (inst)
-    ); */
-
 endmodule

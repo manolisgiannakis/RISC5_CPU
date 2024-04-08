@@ -274,9 +274,7 @@ module PipelineDatapath (clk, reset, mux_to_pc, instMemOut, rd1_id_ex, hazDetect
         .data0      (ALU_0),
         .data1      (ALU_2nd_in),
         .ctrl       (ALUctrl_lines),
-        .mul_res    (mul_res), //wire [63:0] mul_res;
         .result     (result),
-        .zeroFlag   (zeroFlag),
         .branch     (to_branchUnit) //wire to_branchUnit;
     );
 

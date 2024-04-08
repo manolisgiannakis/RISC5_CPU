@@ -22,10 +22,10 @@ module DataCache (clk, addr, MemWrite, MemRead, WriteData, funct3, output_data);
 
 
     initial begin
-        $readmemh("tags.mem", tags, 0, 31);
-        $readmemh("cacheData.mem", data, 0, 31);
-        $readmemb("valid_bits.mem", valid_bits, 0, 31);
-        $readmemb("dirty_bits.mem", dirty_bits, 0, 31);
+        $readmemh("tags.mem", tags);
+        $readmemh("cacheData.mem", data);
+        $readmemb("valid_bits.mem", valid_bits);
+        $readmemb("dirty_bits.mem", dirty_bits);
     end
     
     assign block = data[addr[7:3]];
@@ -201,7 +201,7 @@ module DataCache (clk, addr, MemWrite, MemRead, WriteData, funct3, output_data);
 
     assign DataOut = ReadData;
 
-    always @(DataOut) begin
+    always @(DataOut, funct3) begin
         case(funct3)
                 3'b000: begin //load byte
                     output_data <= $signed(DataOut[7:0]);
@@ -212,14 +212,20 @@ module DataCache (clk, addr, MemWrite, MemRead, WriteData, funct3, output_data);
                 3'b010: begin //load word
                     output_data <= DataOut[31:0];
                 end
+                3'b011: begin //useless
+                    output_data <= 0;
+                end
                 3'b100: begin //load byte unsigned
                     output_data <= DataOut[7:0];
                 end
                 3'b101: begin //load half unsigned
                     output_data <= DataOut[15:0];
                 end
-                default : begin
-                        
+                3'b110: begin //useless
+                    output_data <= 0;
+                end
+                3'b111: begin //useless
+                    output_data <= 0;
                 end
             endcase
     end
