@@ -12,14 +12,14 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
     //register file
     reg [31:0] register [31:0]; //the 32 registers that consist the register file
 
-    /* integer i;
+    integer i;
 
     initial begin //for simulation purposes
         for (i = 0; i < 32; i = i + 1) begin
             register[i] <= 'b0;
         end
         register[5] <= 32'd4; 
-    end */
+    end
 
     //read data - the register file will always output the values corresponding to read register numbers
     //read data in positive edge of the clock
