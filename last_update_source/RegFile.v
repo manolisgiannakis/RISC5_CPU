@@ -7,7 +7,7 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
     input clk, RegWrite;
     input [4:0] rr1, rr2, wr;
     input [31:0] wd;
-    output reg [31:0] rd1, rd2;
+    output [31:0] rd1, rd2;
 
     //register file
     reg [31:0] register [31:0]; //the 32 registers that consist the register file
@@ -23,12 +23,11 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
 
     //read data - the register file will always output the values corresponding to read register numbers
     //read data in positive edge of the clock
-    always @(posedge clk) begin //ΔΙΟΡΘΩΝΩ
-        rd1 <= register[rr1];
-        rd2 <= register[rr2];
-    end
+    //always @(posedge clk) begin //ΔΙΟΡΘΩΝΩ
+    
+    //end
 
-    always @(*) begin //wd, RegWrite, wr we want to write data in the first half of the clock cycle 
+    always @(posedge clk) begin //wd, RegWrite, wr we want to write data in the first half of the clock cycle 
         if(RegWrite) begin
             register[wr] <= wd;
         end
@@ -37,7 +36,8 @@ module RegFile (clk, RegWrite, rr1, rr2, wr, wd, rd1, rd2);
         end
     end
 
-    
+    assign rd1 = register[rr1];
+    assign rd2 = register[rr2];
     
 
 endmodule
